@@ -29,4 +29,16 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function bookings()
+    {
+        return $this->hasMany(Booking::class);
+    }
+
+    public function bike()
+    {
+        return $this->belongsToMany(User::class, 'bookings')
+            ->withPivot('start_time', 'end_time', 'status', 'total_cost')
+            ->withTimestamps();
+    }
 }
