@@ -62,17 +62,21 @@
                 'pending'   => 'bg-yellow-100 text-yellow-800',
                 'confirmed' => 'bg-green-100 text-green-800',
                 'cancelled' => 'bg-red-100 text-red-800',
+                'completed' => 'bg-gray-200 text-gray-700',
+                'active'    => 'bg-blue-100 text-blue-800',
             ];
             $statusLabels = [
                 'pending'   => 'Pendiente',
                 'confirmed' => 'Confirmada',
                 'cancelled' => 'Cancelada',
+                'completed' => 'Finalizada',
+                'active'    => 'Activa',
             ];
         @endphp
 
         @php
-            $start = \Carbon\Carbon::parse($booking->start_date);
-            $end   = \Carbon\Carbon::parse($booking->end_date);
+            $start = \Carbon\Carbon::parse($booking->start_time);
+            $end   = \Carbon\Carbon::parse($booking->end_time);
         @endphp
 
         <div class="flex flex-wrap gap-2">
@@ -92,23 +96,23 @@
             <dl class="mt-6 divide-y divide-gray-100 text-sm">
                 <div class="py-3 flex justify-between">
                     <dt class="text-gray-500">Bicicleta</dt>
-                    <dd class="font-medium">{{ $booking->bike->name }}</dd>
+                    <dd class="font-medium">{{ $booking->bike->model }}</dd>
                 </div>
                 <div class="py-3 flex justify-between">
-                    <dt class="text-gray-500">Tipo</dt>
-                    <dd>{{ $booking->bike->type }}</dd>
+                    <dt class="text-gray-500">Nº de serie</dt>
+                    <dd>{{ $booking->bike->serial_number }}</dd>
                 </div>
                 <div class="py-3 flex justify-between">
-                    <dt class="text-gray-500">Fecha de inicio</dt>
-                    <dd>{{ $start->format('d/m/Y') }}</dd>
+                    <dt class="text-gray-500">Inicio</dt>
+                    <dd>{{ $start->format('d/m/Y H:i') }}</dd>
                 </div>
                 <div class="py-3 flex justify-between">
-                    <dt class="text-gray-500">Fecha de fin</dt>
-                    <dd>{{ $end->format('d/m/Y') }}</dd>
+                    <dt class="text-gray-500">Fin</dt>
+                    <dd>{{ $end->format('d/m/Y H:i') }}</dd>
                 </div>
                 <div class="py-3 flex justify-between">
-                    <dt class="text-gray-500">Días</dt>
-                    <dd>{{ $start->diffInDays($end) + 1 }}</dd>
+                    <dt class="text-gray-500">Horas</dt>
+                    <dd>{{ (int) ceil($start->diffInMinutes($end) / 60) }}</dd>
                 </div>
                 <div class="py-3 flex justify-between">
                     <dt class="text-gray-500">Total</dt>
@@ -120,7 +124,7 @@
                 </div>
             </dl>
 
-            @if (in_array($booking->status, ['pending', 'confirmed']))
+            @if (!in_array($booking->status, ['cancelled', 'completed']))
                 <form method="POST" action="{{ route('bookings.cancel', $booking) }}" class="mt-6 text-right"
                       onsubmit="return confirm('¿Seguro que quieres cancelar esta reserva?');">
                     @csrf

@@ -63,10 +63,10 @@
         </div>
 
         <div class="mt-4 max-w-2xl mx-auto bg-white rounded-lg shadow-sm p-6">
-            <h1 class="text-2xl font-bold mb-1">Reservar: {{ $bike->name }}</h1>
+            <h1 class="text-2xl font-bold mb-1">Reservar: {{ $bike->model }}</h1>
             <p class="text-gray-600 mb-6">
-                {{ $bike->type }} ·
-                <span class="font-semibold text-indigo-600">{{ number_format($bike->price_per_day, 2, ',', '.') }} € / día</span>
+                Nº serie: {{ $bike->serial_number }} ·
+                <span class="font-semibold text-indigo-600">{{ number_format($bike->price_per_hour, 2, ',', '.') }} € / hora</span>
             </p>
 
             <form method="POST" action="{{ route('bookings.store') }}" class="space-y-5">
@@ -74,24 +74,29 @@
                 <input type="hidden" name="bike_id" value="{{ $bike->id }}">
 
                 <div>
-                    <label for="start_date" class="block text-sm font-medium mb-1">Fecha de inicio</label>
-                    <input type="date" id="start_date" name="start_date"
-                           value="{{ old('start_date') }}" min="{{ now()->toDateString() }}"
+                    <label for="start_time" class="block text-sm font-medium mb-1">Inicio de la reserva</label>
+                    <input type="datetime-local" id="start_time" name="start_time"
+                           value="{{ old('start_time') }}" min="{{ now()->format('Y-m-d\TH:i') }}"
                            class="w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500" required>
-                    @error('start_date')
+                    @error('start_time')
                         <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
                     @enderror
                 </div>
 
                 <div>
-                    <label for="end_date" class="block text-sm font-medium mb-1">Fecha de fin</label>
-                    <input type="date" id="end_date" name="end_date"
-                           value="{{ old('end_date') }}" min="{{ now()->toDateString() }}"
+                    <label for="end_time" class="block text-sm font-medium mb-1">Fin de la reserva</label>
+                    <input type="datetime-local" id="end_time" name="end_time"
+                           value="{{ old('end_time') }}" min="{{ now()->format('Y-m-d\TH:i') }}"
                            class="w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500" required>
-                    @error('end_date')
+                    @error('end_time')
                         <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
                     @enderror
                 </div>
+
+                <p class="text-sm text-gray-600">
+                    Total estimado: <span id="estimate" class="font-semibold text-indigo-600">—</span>
+                    <span class="text-gray-400">(se cobra por hora empezada)</span>
+                </p>
 
                 @error('bike_id')
                     <p class="text-sm text-red-600">{{ $message }}</p>
@@ -107,6 +112,21 @@
             </form>
         </div>
 
+    <script>
+        const price = {{ (float) $bike->price_per_hour }};
+        const startInput = document.getElementById('start_time');
+        const endInput = document.getElementById('end_time');
+        const estimate = document.getElementById('estimate');
+
+        function updateEstimate() {
+            const ms = new Date(endInput.value) - new Date(startInput.value);
+            estimate.textContent = ms > 0
+                ? (Math.ceil(ms / 3600000) * price).toFixed(2).replace('.', ',') + ' €'
+                : '—';
+        }
+        startInput.addEventListener('input', updateEstimate);
+        endInput.addEventListener('input', updateEstimate);
+    </script>
     </main>
 </body>
 </html>
