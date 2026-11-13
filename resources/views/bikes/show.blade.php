@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $bike->name }} - {{ config('app.name') }}</title>
+    <title>{{ $bike->model }} - {{ config('app.name') }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-gray-100 text-gray-800 antialiased">
@@ -66,34 +66,29 @@
 
         <div class="mt-4 bg-white rounded-lg shadow-sm overflow-hidden md:flex">
             <div class="md:w-1/2">
-                @if ($bike->image)
-                    <img src="{{ asset('storage/' . $bike->image) }}" alt="{{ $bike->name }}"
-                         class="h-full w-full object-cover">
-                @else
-                    <div class="h-72 md:h-full bg-gray-200 flex items-center justify-center text-7xl">🚲</div>
-                @endif
+                <div class="h-72 md:h-full bg-gray-200 flex items-center justify-center text-7xl">🚲</div>
             </div>
 
             <div class="p-6 md:w-1/2 flex flex-col">
                 <div class="flex items-start justify-between gap-2">
-                    <h1 class="text-3xl font-bold">{{ $bike->name }}</h1>
-                    @if ($bike->available)
+                    <h1 class="text-3xl font-bold">{{ $bike->model }}</h1>
+                    @if ($bike->status === 'available')
                         <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">Disponible</span>
                     @else
                         <span class="text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full">No disponible</span>
                     @endif
                 </div>
 
-                <p class="text-gray-500 mt-1">{{ $bike->type }}</p>
-                <p class="mt-4 text-gray-700 flex-1">{{ $bike->description }}</p>
+                <p class="text-gray-500 mt-1">Nº serie: {{ $bike->serial_number }}</p>
+                <div class="flex-1"></div>
 
                 <p class="mt-6 text-3xl font-bold text-indigo-600">
-                    {{ number_format($bike->price_per_day, 2, ',', '.') }} €
-                    <span class="text-base font-normal text-gray-500">/ día</span>
+                    {{ number_format($bike->price_per_hour, 2, ',', '.') }} €
+                    <span class="text-base font-normal text-gray-500">/ hora</span>
                 </p>
 
                 <div class="mt-6">
-                    @if ($bike->available)
+                    @if ($bike->status === 'available')
                         {{-- Si el visitante no ha iniciado sesión, el middleware 'auth' lo enviará al login --}}
                         <a href="{{ route('bookings.create', $bike) }}"
                            class="inline-block bg-indigo-600 text-white px-6 py-3 rounded-md hover:bg-indigo-700">
@@ -110,7 +105,6 @@
                 </div>
             </div>
         </div>
-
     </main>
 </body>
 </html>

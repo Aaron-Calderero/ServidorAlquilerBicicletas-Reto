@@ -62,11 +62,15 @@
                 'pending'   => 'bg-yellow-100 text-yellow-800',
                 'confirmed' => 'bg-green-100 text-green-800',
                 'cancelled' => 'bg-red-100 text-red-800',
+                'completed' => 'bg-gray-200 text-gray-700',
+                'active'    => 'bg-blue-100 text-blue-800',
             ];
             $statusLabels = [
                 'pending'   => 'Pendiente',
                 'confirmed' => 'Confirmada',
                 'cancelled' => 'Cancelada',
+                'completed' => 'Finalizada',
+                'active'    => 'Activa',
             ];
         @endphp
 
@@ -90,9 +94,9 @@
                 <tbody class="divide-y divide-gray-100">
                     @forelse ($bookings as $booking)
                         <tr>
-                            <td class="px-4 py-3 font-medium">{{ $booking->bike->name }}</td>
-                            <td class="px-4 py-3">{{ \Carbon\Carbon::parse($booking->start_date)->format('d/m/Y') }}</td>
-                            <td class="px-4 py-3">{{ \Carbon\Carbon::parse($booking->end_date)->format('d/m/Y') }}</td>
+                            <td class="px-4 py-3 font-medium">{{ $booking->bike->model }}</td>
+                            <td class="px-4 py-3">{{ \Carbon\Carbon::parse($booking->start_time)->format('d/m/Y H:i') }}</td>
+                            <td class="px-4 py-3">{{ \Carbon\Carbon::parse($booking->end_time)->format('d/m/Y H:i') }}</td>
                             <td class="px-4 py-3">{{ number_format($booking->total_price, 2, ',', '.') }} €</td>
                             <td class="px-4 py-3">
                                 <span class="px-2 py-0.5 rounded-full text-xs {{ $statusStyles[$booking->status] ?? 'bg-gray-100 text-gray-700' }}">
@@ -103,7 +107,7 @@
                                 <a href="{{ route('bookings.show', $booking) }}"
                                    class="inline-block border border-indigo-300 text-indigo-700 px-3 py-1 rounded-md hover:bg-indigo-50">Ver</a>
 
-                                @if (in_array($booking->status, ['pending', 'confirmed']))
+                                @if (!in_array($booking->status, ['cancelled', 'completed']))
                                     <form method="POST" action="{{ route('bookings.cancel', $booking) }}" class="inline"
                                           onsubmit="return confirm('¿Seguro que quieres cancelar esta reserva?');">
                                         @csrf
