@@ -57,7 +57,7 @@ class BookingController extends Controller
             return back()->withInput()->withErrors(['start_time' => 'La bicicleta ya esta reservada en ese horario.']);
         }
 
-        $hours = startTime->diffInHours(endTime);
+        $hours = $startTime->diffInHours($endTime);
         $hours = $hours > 0 ? $hours : 1;
         $totalCost = $hours * $bike->price_per_hour;
 
